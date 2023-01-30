@@ -1,0 +1,12 @@
+precision lowp float;
+
+uniform sampler2D lightTexture;
+
+varying mediump vec4 varying_screenTexCoord;
+
+
+
+void main()
+{
+	gl_FragColor = texture2DProj(lightTexture, varying_screenTexCoord);
+}

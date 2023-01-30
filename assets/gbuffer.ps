@@ -1,0 +1,14 @@
+precision lowp float;
+
+varying mediump float varying_depth_view;
+varying mediump vec2 varying_normal_view;
+
+
+
+void main()
+{
+	mediump float depth_view = varying_depth_view;
+	mediump vec2 normal_view = varying_normal_view;
+	
+	gl_FragColor = vec4(floor(depth_view) / 255.0, fract(depth_view), 0.5*normal_view + 0.5);
+}

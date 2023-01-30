@@ -1,0 +1,42 @@
+precision lowp float;
+
+uniform sampler2D gbufferTexture;
+
+uniform mediump vec4 lightPosAndRange;
+uniform mediump vec4 lightColor;
+
+varying mediump vec4 varying_screenTexCoord;
+varying mediump vec3 varying_positionOnNearPlane;
+
+
+
+void main()
+{
+	mediump vec4 gbufferSample = texture2DProj(gbufferTexture, varying_screenTexCoord);
+	
+	//
+	
+	mediump float depth = 255.0*gbufferSample.x + gbufferSample.y;
+	mediump vec3 position_view = varying_positionOnNearPlane * depth;
+
+	mediump vec3 normal_view = vec3(2.0*gbufferSample.zw - 1.0, 0.0);
+	normal_view.z = -sqrt(1.0 - dot(normal_view, normal_view));
+
+	//
+
+	mediump vec3 pixelToLight_view = lightPosAndRange.xyz - position_view;
+	mediump vec4 result = vec4(1.0);
+
+	mediump float rangeAttenuation = 1.0 - (lightPosAndRange.w * dot(pixelToLight_view, pixelToLight_view));
+	rangeAttenuation = clamp(rangeAttenuation, 0.0, 1.0);
+	result *= rangeAttenuation * rangeAttenuation;
+
+	pixelToLight_view = normalize(pixelToLight_view);
+	mediump float NdotL = dot(pixelToLight_view, normal_view);
+	NdotL = clamp(NdotL, 0.0, 1.0);
+	result *= NdotL;
+	
+	//
+
+	gl_FragColor = result * lightColor;
+}
